@@ -1,5 +1,5 @@
 import { Link } from "expo-router";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 
 export default function Index() {
   return (
@@ -10,10 +10,7 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Link href="/sign-in"> Sign In</Link>
-      <Link href="/explore"> Explore</Link>
-      <Link href="/profile"> Profile</Link>
-      <Link href={{pathname: "/properties/[id]", params: {id: 1}}}> Property 1</Link>
+      <Text>Welcome to the Home Screen!</Text>
     </View>
   );
 }

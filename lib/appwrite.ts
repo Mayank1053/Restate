@@ -5,7 +5,7 @@ import { openAuthSessionAsync } from 'expo-web-browser';
 export const config = {
   platform: 'com.project.realscout',
   endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
-  project: process.env.EXPO_PUBLIC_APPWRITE_PROJECT,
+  project: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID,
 };
 export const client = new Client();
 
