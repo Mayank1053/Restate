@@ -22,39 +22,38 @@ import { useGlobalContext } from '@/lib/global-provider';
 import { getLatestProperties, getProperties } from '@/lib/appwrite';
 
 const Home = () => {
+  const { user } = useGlobalContext();
 
-   const { user } = useGlobalContext();
+  const params = useLocalSearchParams<{ query?: string; filter?: string }>();
 
-   const params = useLocalSearchParams<{ query?: string; filter?: string }>();
+  const { data: latestProperties, loading: latestPropertiesLoading } =
+    useAppwrite({
+      fn: getLatestProperties,
+    });
 
-   const { data: latestProperties, loading: latestPropertiesLoading } =
-     useAppwrite({
-       fn: getLatestProperties,
-     });
+  const {
+    data: properties,
+    refetch,
+    loading,
+  } = useAppwrite({
+    fn: getProperties,
+    params: {
+      filter: params.filter!,
+      query: params.query!,
+      limit: 6,
+    },
+    skip: true,
+  });
 
-   const {
-     data: properties,
-     refetch,
-     loading,
-   } = useAppwrite({
-     fn: getProperties,
-     params: {
-       filter: params.filter!,
-       query: params.query!,
-       limit: 6,
-     },
-     skip: true,
-   });
+  useEffect(() => {
+    refetch({
+      filter: params.filter!,
+      query: params.query!,
+      limit: 6,
+    });
+  }, [params.filter, params.query]);
 
-   useEffect(() => {
-     refetch({
-       filter: params.filter!,
-       query: params.query!,
-       limit: 6,
-     });
-   }, [params.filter, params.query]);
-
-   const handleCardPress = (id: string) => router.push(`/properties/${id}`);
+  const handleCardPress = (id: string) => router.push(`/properties/${id}`);
 
   return (
     <SafeAreaView className='h-full bg-white'>
@@ -152,6 +151,6 @@ const Home = () => {
       />
     </SafeAreaView>
   );
-}
+};
 
 export default Home;

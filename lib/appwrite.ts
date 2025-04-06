@@ -1,4 +1,13 @@
-import { Client, Account, Avatars, OAuthProvider } from 'react-native-appwrite';
+import {
+  Client,
+  Account,
+  ID,
+  Databases,
+  OAuthProvider,
+  Avatars,
+  Query,
+  Storage,
+} from 'react-native-appwrite';
 import * as Linking from 'expo-linking';
 import { openAuthSessionAsync } from 'expo-web-browser';
 
@@ -6,6 +15,12 @@ export const config = {
   platform: 'com.project.realscout',
   endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
   project: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID,
+  database: process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID,
+  agentsCollection: process.env.EXPO_PUBLIC_APPWRITE_AGENTS_COLLECTION_ID,
+  galleriesCollection: process.env.EXPO_PUBLIC_APPWRITE_GALLERIES_COLLECTION_ID,
+  reviewsCollection: process.env.EXPO_PUBLIC_APPWRITE_REVIEWS_COLLECTION_ID,
+  propertiesCollection:
+    process.env.EXPO_PUBLIC_APPWRITE_PROPERTIES_COLLECTION_ID,
 };
 export const client = new Client();
 
@@ -16,6 +31,7 @@ client
 
 export const avatar = new Avatars(client);
 export const account = new Account(client);
+export const databases = new Databases(client);
 
 export async function login() {
   try {
@@ -42,7 +58,7 @@ export async function login() {
     // Check if the URL is the expected redirect URL
     const secret = url.searchParams.get('secret')?.toString();
     if (!secret) throw new Error('Failed to login');
-    
+
     // Extract the userId from the URL search params
     // This is the user ID returned by Appwrite after successful authentication
     const userId = url.searchParams.get('userId')?.toString();
@@ -81,6 +97,75 @@ export async function getCurrentUser() {
         avatar: userAvatar.toString(),
       };
     }
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function getLatestProperties() {
+  try {
+    const result = await databases.listDocuments(
+      config.database!,
+      config.propertiesCollection!,
+      [Query.orderAsc('$createdAt'), Query.limit(5)],
+    );
+
+    return result.documents;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function getProperties({
+  filter,
+  query,
+  limit,
+}: {
+  filter: string;
+  query: string;
+  limit?: number;
+}) {
+  try {
+    const buildQuery = [Query.orderDesc('$createdAt')];
+
+    if (filter && filter !== 'All')
+      buildQuery.push(Query.equal('type', filter));
+
+    if (query)
+      buildQuery.push(
+        Query.or([
+          Query.search('name', query),
+          Query.search('address', query),
+          Query.search('type', query),
+        ]),
+      );
+
+    if (limit) buildQuery.push(Query.limit(limit));
+
+    const result = await databases.listDocuments(
+      config.database!,
+      config.propertiesCollection!,
+      buildQuery,
+    );
+
+    return result.documents;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+// write function to get property by id
+export async function getPropertyById({ id }: { id: string }) {
+  try {
+    const result = await databases.getDocument(
+      config.database!,
+      config.propertiesCollection!,
+      id,
+    );
+    return result;
   } catch (error) {
     console.error(error);
     return null;
