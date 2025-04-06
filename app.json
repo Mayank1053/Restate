@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Restate",
-    "slug": "Restate",
+    "name": "RealScout",
+    "slug": "RealScout",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "RealScout",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
